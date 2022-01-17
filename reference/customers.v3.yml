@@ -297,6 +297,9 @@ paths:
                     origin_channel_id: 1
                     channel_ids:
                       - 1
+                    form_fields: 
+                      - name: "test"
+                        value: "test"
         required: true
         x-examples: {}
         description: ''
@@ -412,6 +415,15 @@ paths:
                       - amount: 43.15
                     channel_ids:
                       - 1
+                    form_fields: 
+                      - name: "test"
+                        value: "test"  
+              example-2-form-fields:
+                value:
+                  - id: 1
+                    form_fields: 
+                      - name: "test"
+                        value: "test"  
     delete:
       description: |-
         Deletes Customers.
@@ -547,7 +559,23 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/address_Post'
-            examples: {}
+            examples: 
+              example-1:
+                value:
+                  - first_name: John
+                    last_name: Doe
+                    address1: 111 E West Street
+                    address2: '654'
+                    city: Akron
+                    state_or_province: Ohio
+                    postal_code: '44325'
+                    country_code: US
+                    phone: '1234567890'
+                    address_type: residential
+                    customer_id: 11
+                    form_fields: 
+                      - name: "test"
+                        value: "test"
         required: true
         x-examples:
           application/json:
@@ -562,6 +590,9 @@ paths:
               phone: '1234567890'
               address_type: residential
               customer_id: 11
+              form_fields: 
+                - name: "test"
+                  value: "test"
       responses:
         '200':
           $ref: '#/components/responses/AddressCollectionResponsePostPut'
@@ -622,6 +653,31 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/address_Put'
+            examples:
+              example-1:
+                value:
+                  - id: 11
+                    first_name: John
+                    last_name: Doe
+                    address1: 111 E West Street
+                    address2: '654'
+                    city: Akron
+                    state_or_province: Ohio
+                    postal_code: '44325'
+                    country_code: US
+                    phone: '1234567890'
+                    address_type: residential
+                    customer_id: 11
+                    form_fields: 
+                      - name: "test"
+                        value: "test"
+              example-2-form-fields:
+                value:
+                  - id: 11
+                    customer_id: 11
+                    form_fields: 
+                      - name: "test"
+                        value: "test"
         required: true
         x-examples:
           application/json:
@@ -1885,16 +1941,9 @@ components:
                       description: Array of form fields. Controlled by `formfields` parameter.
                       type: array
                       items:
-                        oneOf:
-                          - allOf:
-                              - type: object
-                                title: Form Field Value Base
-                              - type: object
-                          - allOf:
-                              - type: object
-                                title: Form Field Value Base
-                              - type: object
-                        title: 'Form Field Value '
+                        allOf:
+                          - $ref: "#/components/schemas/formFieldValue_Address"
+                        title: 'Customer Address Form Field Value'
                   required:
                     - address1
                     - city
@@ -2016,16 +2065,9 @@ components:
                       description: Array of form fields. Controlled by `formfields` parameter.
                       type: array
                       items:
-                        oneOf:
-                          - allOf:
-                              - type: object
-                                title: Form Field Value Base
-                              - type: object
-                          - allOf:
-                              - type: object
-                                title: Form Field Value Base
-                              - type: object
-                        title: 'Form Field Value '
+                        allOf:
+                          - $ref: "#/components/schemas/formFieldValue_Address"
+                        title: 'Customer Address Form Field Value'
               meta:
                 type: object
           examples:
@@ -2678,7 +2720,7 @@ components:
           description: Array of form fields. Controlled by `formfields` parameter.
           type: array
           items:
-            $ref: '#/components/schemas/formFieldValue_Full'
+            $ref: '#/components/schemas/formFieldValue_Customer'
         store_credit_amounts:
           $ref: '#/components/schemas/CustomerStoredCreditAmounts'
         accepts_product_review_abandoned_cart_emails:
@@ -2752,8 +2794,15 @@ components:
         channel_ids:
           description: Array of channels the customer can access
           type: array
+          example: [1,2]
           items:
-            example: [1,2]
+            type: integer
+        form_fields:
+          type: array
+          description: |
+            Array of form fields. Controlled by formfields parameter.
+          items:
+            $ref: "#/components/schemas/formFieldValue_Customer"    
       required:
         - email
         - first_name
@@ -2820,6 +2869,12 @@ components:
           type: array
           items:
             type: integer
+        form_fields:
+          type: array
+          description: |
+            Array of form fields. Controlled by formfields parameter.
+          items:
+            $ref: "#/components/schemas/formFieldValue_Customer"    
       required:
         - id
     attribueValue_Base:
@@ -3089,6 +3144,12 @@ components:
           type: integer
           format: int32
           example: 1
+        form_fields:
+          type: array
+          description: |
+            Array of form fields. Controlled by formfields parameter.
+          items:
+            $ref: "#/components/schemas/formFieldValue_Address"  
       required:
         - customer_id
         - id
@@ -3171,6 +3232,12 @@ components:
           type: integer
           format: int32
           example: 1
+        form_fields:
+          type: array
+          description: |
+            The address custom form field values
+          items:
+            $ref: "#/components/schemas/formFieldValue_Address"
       required:
         - first_name
         - last_name
@@ -3300,63 +3367,68 @@ components:
         next:
           description: Link to the next page returned in the response.
           type: string
+    formFieldValue_Customer:
+      title: Customer Form Field Value
+      type: object
+      required:
+        - customer_id
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          description: The form field name.
+          example: color
+        value:
+          oneOf:
+            - type: string
+              example: blue
+            - type: number
+              format: double
+              example: 12.345
+            - type: array
+              example:
+                - red
+                - green
+                - black
+              items:
+                type: string
+        customer_id:
+          type: integer      
+    formFieldValue_Address:
+      title: Customer Address Form Field Value
+      type: object
+      required:
+        - address_id
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          description: The form field name.
+          example: color
+        value:
+          oneOf:
+            - type: string
+              example: blue
+            - type: number
+              format: double
+              example: 12.345
+            - type: array
+              example:
+                - red
+                - green
+                - black
+              items:
+                type: string
+        address_id:
+          type: integer
+          description: The Customer Address ID.
+          example: 1
     formFieldValue_Full:
       oneOf:
-        - title: Customer Form Field Value
-          type: object
-          required:
-            - customer_id
-            - name
-            - value
-          properties:
-            name:
-              type: string
-              description: The form field name.
-              example: color
-            value:
-              oneOf:
-                - type: string
-                  example: blue
-                - type: number
-                  format: double
-                  example: 12.345
-                - type: array
-                  example:
-                    - red
-                    - green
-                    - black
-                  items:
-                    type: string
-            customer_id:
-              type: integer
-        - title: Customer Address Form Field Value
-          type: object
-          required:
-            - address_id
-            - name
-            - value
-          properties:
-            name:
-              type: string
-              description: The form field name.
-              example: color
-            value:
-              oneOf:
-                - type: string
-                  example: blue
-                - type: number
-                  format: double
-                  example: 12.345
-                - type: array
-                  example:
-                    - red
-                    - green
-                    - black
-                  items:
-                    type: string
-            address_id:
-              type: integer
-              description: The Customer Address ID.
+        - $ref: "#/components/schemas/formFieldValue_Customer"
+        - $ref: "#/components/schemas/formFieldValue_Address"
       title: formFieldValue_Full
     consent_Full:
       title: consent_Full
