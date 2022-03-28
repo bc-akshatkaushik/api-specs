@@ -2871,7 +2871,7 @@ components:
           description: |
             Array of form fields. Controlled by formfields parameter.
           items:
-            $ref: "#/components/schemas/formFieldValue_Customer"    
+            $ref: "#/components/schemas/formFieldValue"    
       required:
         - email
         - first_name
@@ -2944,7 +2944,7 @@ components:
           description: |
             Array of form fields. Controlled by formfields parameter.
           items:
-            $ref: "#/components/schemas/formFieldValue_Customer"    
+            $ref: "#/components/schemas/formFieldValue"    
       required:
         - id
       x-internal: true
@@ -3225,7 +3225,7 @@ components:
           description: |
             Array of form fields. Controlled by formfields parameter.
           items:
-            $ref: "#/components/schemas/formFieldValue_Address"  
+            $ref: "#/components/schemas/formFieldValue"  
       required:
         - customer_id
         - id
@@ -3314,7 +3314,7 @@ components:
           description: |
             The address custom form field values
           items:
-            $ref: "#/components/schemas/formFieldValue_Address"
+            $ref: "#/components/schemas/formFieldValue"
       required:
         - first_name
         - last_name
@@ -3447,6 +3447,31 @@ components:
         next:
           description: Link to the next page returned in the response.
           type: string
+    formFieldValue:
+      title: Generic Form Field Value
+      type: object
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          description: The form field name.
+          example: color
+        value:
+          oneOf:
+            - type: string
+              example: blue
+            - type: number
+              format: double
+              example: 12.345
+            - type: array
+              example:
+                - red
+                - green
+                - black
+              items:
+                type: string      
     formFieldValue_Customer:
       title: Customer Form Field Value
       type: object
